@@ -12,9 +12,8 @@ from pathlib import Path
 
 import gymnasium as gym
 from matplotlib import pyplot
-from numpy import array, newaxis, squeeze, zeros, concatenate
-# from sb3_contrib import RecurrentPPO
-from stable_baselines3 import PPO
+from numpy import concatenate, full
+from sb3_contrib import RecurrentPPO
 
 from data_handler.stock_data import get_stock_data
 
@@ -36,24 +35,22 @@ class Inferencer:
         self.frame_bound = configs["frame_bound"]
         self.env = None
         self.observation = None
-        self.model = PPO.load(model, deterministic=True)
+        self.model = RecurrentPPO.load(model, deterministic=True)
 
     def update_environment(self, data):
-        self.env = gym.make(id=self.env_id, frame_bound=(20, 120) ,window_size=self.window_size, df=data)
+        self.env = gym.make(id=self.env_id, frame_bound=self.frame_bound, window_size=self.window_size, df=data)
         return self
 
     def infer(self):
         done = False
         info = None
         self.observation, info = self.env.reset()
-        # self.observation = array(self.observation, dtype=object)
         while not done:
-            self.observation = self.observation[newaxis, ...]
-            if (obs_shape := squeeze(self.observation).shape) != self.model.observation_space.shape:
-                padding = zeros((self.observation.shape[0],
-                                 self.model.observation_space.shape[0] - obs_shape[0],
-                                 self.observation.shape[-1]))
-                self.observation = concatenate((self.observation, padding), axis=1)
+            # self.observation = self.observation[newaxis, ...]
+            if self.observation.shape != self.env.observation_space.shape:
+                padding = self.env.observation_space.shape[0] - self.observation.shape[0]
+                self.observation = concatenate([self.observation,
+                                                full((padding, self.observation.shape[1]), 0)], axis=0)
             action, states = self.model.predict(self.observation)
             self.observation, rewards, done, truncated, info = self.env.step(action)
         else:
@@ -67,11 +64,11 @@ class Inferencer:
         pyplot.figure(figsize=(30, 12))
         pyplot.cla()
         self.env.render_all()
-        pyplot.savefig(location.joinpath(datetime.today().isoformat()))
+        pyplot.savefig(f"{datetime.today().isoformat()}.png")
 
 
 if __name__ == "__main__":
-    fetched_data = get_stock_data(symbol="GOOG")
+    fetched_data = get_stock_data(symbol="GOOG", start="2023-01-01", end="2024-01-01")
     print(len(fetched_data))
-    inferencer = Inferencer("models/configs.json", "models/model.zip")
+    inferencer = Inferencer("models/GOOGL_configs.json", "models/GOOGL.zip")
     inferencer.update_environment(fetched_data).infer().plot_inference("inferred")
