@@ -6,15 +6,19 @@ Created on January 09, 2024
 """
 
 from os import environ
+from gymnasium.envs.registration import register
 
 # ------------------ Mandatory Imports ------------------
 import gym_anytrading
 
-# ------------------ Default Values ------------------
+# ------------------ Trading Environment ----------------
+register(id="custom-stocks-v0", entry_point="modeler.environments:CustomStocksEnv")
+
+# ------------------ Default Values ---------------------
 _DEFAULT_STOCK_SYMBOL = "GOOGL"
 _DEFAULT_TIMEZONE = "UTC"
 _DEFAULT_TRAINING_WINDOW_SIZE = 5
-_DEFAULT_MODEL_ENV_ID = "stocks-v0"
+_DEFAULT_MODEL_ENV_ID = "custom-stocks-v0"
 _DEFAULT_VERBOSE = 1
 _DEFAULT_MODEL_STRUCTURE_POLICY = "MlpLstmPolicy"
 _DEFAULT_OUTPUT_LOCATION = "models"
@@ -24,7 +28,7 @@ _DEFAULT_CALLBACK_DELAY_STEPS = 10
 _DEFAULT_CALLBACK_PATIENCE = 5
 _DEFAULT_EVALUATION_FREQUENCY = 1000
 
-# ---------------- Configured Values -----------------
+# ------------------ Configured Values ------------------
 STOCK_SYMBOL = environ.get("stock_symbol", _DEFAULT_STOCK_SYMBOL)
 TIMEZONE = environ.get("timezone", _DEFAULT_TIMEZONE)
 TRAINING_WINDOW_SIZE = int(environ.get("training_window_size", _DEFAULT_TRAINING_WINDOW_SIZE))

@@ -21,7 +21,7 @@ log = getLogger()
 
 
 class Inferencer:
-    def __init__(self, configs: str or dict, model: str):
+    def __init__(self, configs: str or dict, model: str, output_location: str = "temp_inference"):
 
         if isinstance(configs, str):
             configs = Path(configs)
@@ -36,6 +36,8 @@ class Inferencer:
         self.env = None
         self.observation = None
         self.model = RecurrentPPO.load(model, deterministic=True)
+        self.output_location = Path(output_location)
+        self.output_location.mkdir(parents=True, exist_ok=True)
 
     def update_environment(self, data):
         self.env = gym.make(id=self.env_id, frame_bound=self.frame_bound, window_size=self.window_size, df=data)
@@ -43,10 +45,8 @@ class Inferencer:
 
     def infer(self):
         done = False
-        info = None
         self.observation, info = self.env.reset()
         while not done:
-            # self.observation = self.observation[newaxis, ...]
             if self.observation.shape != self.env.observation_space.shape:
                 padding = self.env.observation_space.shape[0] - self.observation.shape[0]
                 self.observation = concatenate([self.observation,
@@ -63,12 +63,11 @@ class Inferencer:
 
         pyplot.figure(figsize=(30, 12))
         pyplot.cla()
-        self.env.render_all()
-        pyplot.savefig(f"{datetime.today().isoformat()}.png")
+        self.env.unwrapped.render_all()
+        pyplot.savefig(self.output_location.joinpath(f"{datetime.today().isoformat()}.png"))
 
 
 if __name__ == "__main__":
     fetched_data = get_stock_data(symbol="GOOG", start="2023-01-01", end="2024-01-01")
-    print(len(fetched_data))
     inferencer = Inferencer("models/GOOGL_configs.json", "models/GOOGL.zip")
     inferencer.update_environment(fetched_data).infer().plot_inference("inferred")
