@@ -1,21 +1,22 @@
 # -*- coding: utf-8 -*-
 """
-Created on January 05, 2024
 
 @author: mansour
 """
 
 from datetime import datetime
 from logging import getLogger
-from configs.constants import STOCK_SYMBOL, TIMEZONE
-from pandas import to_datetime
 
+from pandas import to_datetime
 from yfinance import download
+
+from configs.constants import DATA_END_DATE, DATA_START_DATE, STOCK_SYMBOL, TIMEZONE
 
 log = getLogger()
 
 
-def get_stock_data(start: str = None, end: str = None, symbol: str = STOCK_SYMBOL, time_zone: str = TIMEZONE):
+def get_stock_data(start: str = DATA_START_DATE, end: str = DATA_END_DATE, symbol: str = STOCK_SYMBOL,
+                   time_zone: str = TIMEZONE):
     if start is None:
         raise ValueError("There must be a start value.")
     elif start and end is None:

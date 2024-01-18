@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-Created on January 10, 2024
 
 @author: mansour
 """
@@ -15,27 +14,31 @@ from matplotlib import pyplot
 from numpy import concatenate, full
 from sb3_contrib import RecurrentPPO
 
+from configs.constants import MODEL_LOCATION
 from data_handler.stock_data import get_stock_data
 
 log = getLogger()
 
 
 class Inferencer:
-    def __init__(self, configs: str or dict, model: str, output_location: str = "temp_inference"):
+    def __init__(self, stock_symbol: str, configs: dict = None, model_root_location: str | Path = None,
+                 output_location: str = "temp_inference"):
 
-        if isinstance(configs, str):
-            configs = Path(configs)
-            if configs.is_file():
-                configs = json_load(configs.open())
+        self.model_root_location = Path(model_root_location or MODEL_LOCATION, stock_symbol)
+
+        if configs is None:
+            configs_location = self.model_root_location.joinpath("configs.json")
+            if configs_location.is_file():
+                configs = json_load(configs_location.open())
             else:
-                raise ValueError("Cannot find the config file.")
+                raise ValueError(f"Cannot find the config file at: {configs_location.resolve().as_posix()}")
 
         self.window_size = configs["window_size"]
         self.env_id = configs["env_id"]
         self.frame_bound = configs["frame_bound"]
         self.env = None
         self.observation = None
-        self.model = RecurrentPPO.load(model, deterministic=True)
+        self.model = RecurrentPPO.load(self.model_root_location.joinpath("model.zip").as_posix(), deterministic=True)
         self.output_location = Path(output_location)
         self.output_location.mkdir(parents=True, exist_ok=True)
 
@@ -57,8 +60,8 @@ class Inferencer:
             log.info(info)
         return self
 
-    def plot_inference(self, location: str or Path):
-        location = Path(location)
+    def plot_inference(self, location: str or Path = None):
+        location = Path(location) if location else self.output_location
         location.parent.mkdir(exist_ok=True, parents=True)
 
         pyplot.figure(figsize=(30, 12))
@@ -69,5 +72,5 @@ class Inferencer:
 
 if __name__ == "__main__":
     fetched_data = get_stock_data(symbol="GOOG", start="2023-01-01", end="2024-01-01")
-    inferencer = Inferencer("models/GOOGL_configs.json", "models/GOOGL.zip")
+    inferencer = Inferencer(model_root_location="models/GOOGL")
     inferencer.update_environment(fetched_data).infer().plot_inference("inferred")

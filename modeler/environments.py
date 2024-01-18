@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-Created on January 15, 2024
 
 @author: mansour
 """
 
-from numpy import insert, diff, column_stack, float32
-
-from gym_anytrading.envs.trading_env import TradingEnv, Actions, Positions
+from gym_anytrading.envs.trading_env import Actions, Positions, TradingEnv
+from numpy import column_stack, diff, float32, insert
 
 
 class CustomStocksEnv(TradingEnv):
@@ -29,7 +27,7 @@ class CustomStocksEnv(TradingEnv):
         if self.frame_bound[0] < self.window_size:
             raise ValueError("The frame boundaries cannot start from a size smaller than window size.")
 
-        prices = prices[self.frame_bound[0]-self.window_size:self.frame_bound[1]]
+        prices = prices[self.frame_bound[0] - self.window_size:self.frame_bound[1]]
 
         difference = insert(diff(prices), 0, 0)
         signal_features = column_stack((prices, difference))
@@ -41,8 +39,8 @@ class CustomStocksEnv(TradingEnv):
 
         trade = False
         if (
-            (action == Actions.Buy.value and self._position == Positions.Short) or
-            (action == Actions.Sell.value and self._position == Positions.Long)
+                (action == Actions.Buy.value and self._position == Positions.Short) or
+                (action == Actions.Sell.value and self._position == Positions.Long)
         ):
             trade = True
 
@@ -59,8 +57,8 @@ class CustomStocksEnv(TradingEnv):
     def _update_profit(self, action):
         trade = False
         if (
-            (action == Actions.Buy.value and self._position == Positions.Short) or
-            (action == Actions.Sell.value and self._position == Positions.Long)
+                (action == Actions.Buy.value and self._position == Positions.Short) or
+                (action == Actions.Sell.value and self._position == Positions.Long)
         ):
             trade = True
 
@@ -113,8 +111,8 @@ class CustomStocksEnv(TradingEnv):
 
         trade = False
         if (
-            (action == Actions.Buy.value and self._position == Positions.Short) or
-            (action == Actions.Sell.value and self._position == Positions.Long)
+                (action == Actions.Buy.value and self._position == Positions.Short) or
+                (action == Actions.Sell.value and self._position == Positions.Long)
         ):
             trade = True
 
