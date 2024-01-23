@@ -6,9 +6,9 @@
 
 from fastapi import FastAPI
 
-from api.v1.endpoints.data_endponts import data_router
-from api.v1.endpoints.inference_endpoint import inference_router
-from api.v1.endpoints.training_endpoints import training_router
+from service.v1.endpoints.data_endponts import data_router
+from service.v1.endpoints.inference_endpoint import inference_router
+from service.v1.endpoints.training_endpoints import training_router
 
 app = FastAPI()
 

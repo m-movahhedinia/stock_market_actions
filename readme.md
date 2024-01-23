@@ -25,30 +25,19 @@ After you have the server up and running, you can use these three APIs.
 Use the examples below and refer to the code itself for more details.
 Fetching data:
 ```commandline
-curl --location '0.0.0.0:8000/data/GOOGL' \
---header 'Content-Type: application/json' \
---data '{
-    "start_date": "2022-01-01",
-    "end_date": "2023-01-01"
-}'
+curl --location '0.0.0.0:8000/data/GOOGL' --header 'Content-Type: application/json' --data '{"start_date": "2022-01-01", "end_date": "2023-01-01"}'
 ```
 Training:
 ```commandline
-curl --location '0.0.0.0:8000/train/GOOGL' \
---header 'Content-Type: application/json' \
---data '{
-    "start_date": "2022-01-01",
-    "end_date": "2023-01-01"
-}'
+curl --location '0.0.0.0:8000/train/GOOGL' --header 'Content-Type: application/json' --data '{"start_date": "2022-01-01", "end_date": "2023-01-01"}' --no-buffer
 ```
 Getting inference:
 ```commandline
-curl --location '0.0.0.0:8000/infer/GOOGL' \
---header 'Content-Type: application/json' \
---data '{
-    "start_date": "2022-01-01",
-    "end_date": "2023-01-01"
-}'
+curl --location '0.0.0.0:8000/infer/plot/GOOGL' --header 'Content-Type: application/json' --data '{"start_date": "2022-01-01", "end_date": "2023-01-01"}'
+```
+Getting inference:
+```commandline
+curl --location '0.0.0.0:8000/infer/action/GOOGL' --header 'Content-Type: application/json' --data '{"start_date": "2022-01-01", "end_date": "2023-01-01"}'
 ```
 Pay attention that you do not need to fetch the data for training and getting inference. 
 Just passing the start and end dates will suffice. 

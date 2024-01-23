@@ -60,6 +60,11 @@ class Inferencer:
             log.info(info)
         return self
 
+    def get_action(self):
+        self.observation, info = self.env.reset()
+        action, _ = self.model.predict(self.observation)
+        return action
+
     def plot_inference(self, location: str or Path = None):
         location = Path(location) if location else self.output_location
         location.parent.mkdir(exist_ok=True, parents=True)
@@ -72,5 +77,7 @@ class Inferencer:
 
 if __name__ == "__main__":
     fetched_data = get_stock_data(symbol="GOOG", start="2023-01-01", end="2024-01-01")
-    inferencer = Inferencer(model_root_location="models/GOOGL")
+    inferencer = Inferencer(model_root_location="models", stock_symbol="GOOGL")
     inferencer.update_environment(fetched_data).infer().plot_inference("inferred")
+    fetched_data = get_stock_data(symbol="GOOG", start="2023-01-01")
+    print(inferencer.update_environment(fetched_data).get_action())
