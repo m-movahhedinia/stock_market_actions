@@ -1,4 +1,4 @@
-fastapi==0.109.0
+fastapi==0.109.1
 gym-anytrading==2.0.0
 gymnasium==0.29.1
 matplotlib==3.8.2
